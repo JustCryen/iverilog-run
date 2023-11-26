@@ -25,25 +25,22 @@ read -ep 'verilog files: ' v_files
 echo ""
 
 echo -e "> iverilog -o output/$vvp_name.vvp $v_files"
-command="iverilog -o output/$vvp_name.vvp $v_files"
-iverilog -o output/$vvp_name.vvp $v_files || exit 1
+command="iverilog -Wall -o output/$vvp_name.vvp $v_files"
+iverilog -Wall -o output/$vvp_name.vvp $v_files || exit 1
 
 
-if [ -f "$dir/output/$vvp_name.vcd" ]; then
-  rm "$dir/output/$vvp_name.vcd"
+if [ -f "$dir/output/$vvp_name.lxt" ]; then
+  rm "$dir/output/$vvp_name.lxt"
 fi
 
 
 echo -e "\n> vvp output/$vvp_name.vvp\n"
-command="$command && vvp output/$vvp_name.vvp"
-vvp output/$vvp_name.vvp || exit 1
+command="$command && vvp output/$vvp_name.vvp -lxt2"
+vvp output/$vvp_name.vvp -lxt2 || exit 1
 
-echo -e "\n> gtkwave output/$vvp_name.vcd"
-command="$command && gtkwave output/$vvp_name.vcd >> /dev/null & disown && sleep 2 && echo ''"
-#gtkwave output/$vvp_name.vcd
-gtkwave output/$vvp_name.vcd >> /dev/null &
-
-disown
+echo -e "\n> gtkwave output/$vvp_name.lxt"
+command="$command && gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''"
+gtkwave output/$vvp_name.lxt >> /dev/null & disown
 
 sleep 2 && echo ""
 read -ep 'Do you want to save the config file? [y/N]: ' save
@@ -60,7 +57,7 @@ case $save in
 			esac
 		fi
 		echo -e "#! /bin/bash\n" > "$dir/output/save"
-		echo -e "rm '$dir/output/$vvp_name.vcd'" >> "$dir/output/save"
+		echo -e "rm '$dir/output/$vvp_name.lxt'" >> "$dir/output/save"
 		echo -e "$command" >> "$dir/output/save"
 		chmod +x "$dir/output/save" & echo "Saved"
 		;;
