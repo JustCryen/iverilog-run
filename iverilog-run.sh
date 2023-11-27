@@ -14,7 +14,7 @@ if [ -f "$dir/output/save" ]; then
 		[nN] | [nN][oO])
 			;;
 		[yY] | [yY][eE][sS] | *)
-			exec "$dir/output/save" >&2; exit 1
+				exec "$dir/output/save" "$1" >&2; exit 1
 			;;
 	esac
 fi
@@ -24,7 +24,7 @@ read -ep 'Output file name: ' vvp_name
 read -ep 'verilog files: ' v_files
 echo ""
 
-echo -e "> iverilog -o output/$vvp_name.vvp $v_files"
+echo -e "> iverilog -o output/$vvp_name.vvp $v_files\n"
 command="iverilog -Wall -o output/$vvp_name.vvp $v_files"
 iverilog -Wall -o output/$vvp_name.vvp $v_files || exit 1
 
@@ -34,15 +34,18 @@ if [ -f "$dir/output/$vvp_name.lxt" ]; then
 fi
 
 
-echo -e "\n> vvp output/$vvp_name.vvp\n"
+echo -e "> vvp output/$vvp_name.vvp\n"
 command="$command && vvp output/$vvp_name.vvp -lxt2"
 vvp output/$vvp_name.vvp -lxt2 || exit 1
 
 echo -e "\n> gtkwave output/$vvp_name.lxt"
-command="$command && gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''"
-gtkwave output/$vvp_name.lxt >> /dev/null & disown
+render="gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''"
+if ! [[ $1 == "-q" ]]; then
+	gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''
+else
+	echo ""
+fi
 
-sleep 2 && echo ""
 read -ep 'Do you want to save the config file? [y/N]: ' save
 case $save in
 	[yY] | [yY][eE][sS])
@@ -59,6 +62,9 @@ case $save in
 		echo -e "#! /bin/bash\n" > "$dir/output/save"
 		echo -e "rm '$dir/output/$vvp_name.lxt'" >> "$dir/output/save"
 		echo -e "$command" >> "$dir/output/save"
+		echo 'if ! [[ $1 == "-q" ]]; then' >> "$dir/output/save"
+		echo -e "\t$render" >> "$dir/output/save"
+		echo -e "fi" >> "$dir/output/save"
 		chmod +x "$dir/output/save" & echo "Saved"
 		;;
 	[nN] | [nN][oO] | *)
