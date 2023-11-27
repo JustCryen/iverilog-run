@@ -39,9 +39,9 @@ command="$command && vvp output/$vvp_name.vvp -lxt2"
 vvp output/$vvp_name.vvp -lxt2 || exit 1
 
 echo -e "\n> gtkwave output/$vvp_name.lxt"
-render="gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''"
+render="gtkwave output/$vvp_name.lxt output/$vvp_name.gtkw >> /dev/null & disown && sleep 2 && echo ''"
 if ! [[ $1 == "-q" ]]; then
-	gtkwave output/$vvp_name.lxt >> /dev/null & disown && sleep 2 && echo ''
+	gtkwave output/$vvp_name.lxt output/$vvp_name.gtkw >> /dev/null & disown && sleep 2 && echo ''
 else
 	echo ""
 fi
