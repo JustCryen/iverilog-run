@@ -23,7 +23,7 @@ read -ep 'Output file name: ' vvp_name
 read -ep 'verilog files: ' v_files
 echo ""
 
-lxt_file=$(echo -e "$dir/output/$vvp_name.lxt")
+lxt_file=$(echo -e "$(pwd)/output/$vvp_name.lxt")
 
 echo -e "> iverilog -o output/$vvp_name.vvp $v_files\n"
 command="iverilog -Wall -o output/$vvp_name.vvp $v_files"
